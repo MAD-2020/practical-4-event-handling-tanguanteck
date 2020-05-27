@@ -13,7 +13,13 @@ import android.widget.TextView;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
+    Button buttonLeft;
+    Button buttonMiddle;
+    Button buttonRight;
+    int Score = 0;
 
+    TextView textScores;
+    final String TAG = "Whack-a-mole 1.0";
     /* Hint
         - The function setNewMole() uses the Random class to generate a random value ranged from 0 to 2.
         - The function doCheck() takes in button selected and computes a hit or miss and adjust the score accordingly.
@@ -27,7 +33,33 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        buttonLeft = (Button) findViewById(R.id.button2);
+        buttonMiddle = (Button) findViewById(R.id.button1);
+        buttonRight = (Button) findViewById(R.id.button3);
+        textScores = (TextView) findViewById(R.id.textView1);
 
+        buttonLeft.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Log.v(TAG, "Button Left clicked!");
+                doCheck(buttonLeft);
+            }
+
+        });
+        buttonMiddle.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Log.v(TAG, "Button Middle clicked!");
+                doCheck(buttonMiddle);
+            }
+        });
+        buttonRight.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Log.v(TAG, "Button Right clicked!");
+                doCheck(buttonRight);
+            }
+        });
         Log.v(TAG, "Finished Pre-Initialisation!");
 
 
@@ -55,6 +87,19 @@ public class MainActivity extends AppCompatActivity {
         /* Checks for hit or miss and if user qualify for advanced page.
             Triggers nextLevelQuery().
          */
+        if (checkButton.getText() == "*"){
+            Score++;
+            Log.v(TAG, "Hit Score added!");
+        }
+        else{
+            Score--;
+            Log.v(TAG, "Missed, score deducted!");
+        }
+        textScores.setText(Integer.toString(Score));
+        setNewMole();
+        if(Score % 10 == 0 && Score > 0){
+            nextLevelQuery();
+        }
     }
 
     private void nextLevelQuery(){
@@ -64,14 +109,48 @@ public class MainActivity extends AppCompatActivity {
         Log.v(TAG, "User decline!");
         Log.v(TAG, "Advance option given to user!");
         belongs here*/
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Warning! Insane Whack-A-Mole Incoming!");
+        builder.setMessage("Would you like to advance to advanced mode?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                nextLevel();
+                Log.v(TAG, "User accepts!");
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.v(TAG, "User decline!");
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+        Log.v(TAG, "Advance option given to user!");
     }
 
     private void nextLevel(){
         /* Launch advanced page */
+        Intent intent = new Intent(MainActivity.this, Main2Activity.class);
+        intent.putExtra("Scores", Score);
+        startActivity(intent);
     }
 
     private void setNewMole() {
         Random ran = new Random();
         int randomLocation = ran.nextInt(3);
+        buttonLeft.setText("O");
+        buttonMiddle.setText("O");
+        buttonRight.setText("O");
+        if (randomLocation == 0){
+            buttonLeft.setText("*");
+        }
+        else if (randomLocation == 1){
+            buttonMiddle.setText("*");
+        }
+        else if (randomLocation == 2){
+            buttonRight.setText("*");
+        }
     }
 }
